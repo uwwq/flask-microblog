@@ -1,0 +1,73 @@
+{% block body %}
+    <!-- Daisy UI and Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.1.6/dist/full.css" rel="stylesheet" type="text/css"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Editor.js and necessary plugins -->
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/checklist@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/code@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/image@latest"></script>
+
+    <div class="container mx-auto p-4">
+        <h2 class="text-2xl font-bold mb-4">Create</h2>
+        <form id="create-form" action="{{ url_for('create') }}" method="post" class="card bg-base-200 shadow-xl">
+            <div class="card-body">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Message:</span>
+                    </label>
+                    <div id="editorjs" class="min-h-[300px] border rounded-box p-2 bg-white"></div>
+                    <input type="hidden" name="content" id="content-input">
+                </div>
+                <div class="form-control mt-4">
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const editor = new EditorJS({
+            holder: 'editorjs',
+            tools: {
+                header: Header,
+                list: List,
+                paragraph: Paragraph,
+                image: {
+                    class: ImageTool,
+                    inlineToolbar: true
+                }
+            },
+            data: {
+                blocks: [
+                    {
+                        type: "header",
+                        data: {
+                            text: "hello world",
+                            level: 2
+                        }
+                    },
+                ]
+            },
+            onReady: () => {
+                console.log('editorjs is working');
+            },
+        });
+
+        document.getElementById('create-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            editor.save().then((outputData) => {
+                document.getElementById('content-input').value = JSON.stringify(outputData);
+                this.submit();
+            }).catch((error) => {
+                console.log('Erorr while saving text: ', error);
+            });
+        });
+
+    </script>
+{% endblock %}

@@ -1,0 +1,79 @@
+
+{% extends "layout.html" %}
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue 3 Example</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+</head>
+<body>
+    {% if session.logged_in %}
+        {% include 'create.html' %}
+    {% endif %}
+{% raw %}
+<div id="app">
+    <div class="mb-4 p-2 border-b" v-for="(post, index) in posts" :key="post.id">
+        <div v-for="(block, blockIndex) in parseContent(post.content).blocks" :key="block.id">
+            <strong>{{ post.username }}</strong> • <span>{{ formatDate(post.pub_date) }}</span>
+            <component
+                    :is="block.type === 'header' ? `h${block.data.level}` : block.type"
+                    v-html="block.data.text"
+            ></component>
+        </div>
+    </div>
+</div>
+{% endraw %}
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                posts: []
+            };
+        },
+        mounted() {
+            fetch('/api/posts')
+                .then(response => response.json())
+                .then(data => {
+                    this.posts = data;
+                })
+                .catch(error => {
+                    console.error('Error: ', error);
+                });
+        },
+        methods: {
+            parseContent(content) {
+                try {
+                    return JSON.parse(content);
+                } catch (e) {
+                    console.error('Error: ', e);
+                    return {blocks: []};
+                }
+            },
+            formatDate(pubDate) {
+                const postDate = new Date(pubDate);
+                const now = new Date();
+                const diffInMinutes = Math.floor((now - postDate) / (1000 * 60));
+                const time_params = {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                };
+
+                if (diffInMinutes < 60) {
+                    return `${postDate.toLocaleTimeString('ru-RU', time_params)}`;
+                } else {
+                    return `${postDate.toLocaleDateString()} в ${postDate.toLocaleTimeString('ru-RU', time_params)}`;
+                }
+            },
+        }
+    });
+
+    app.mount('#app');
+</script>
+</body>
+</html>
+{% endblock %}
