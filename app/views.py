@@ -9,7 +9,7 @@ from app.models import execute_db
 
 @app.route('/')
 def index():
-    return render_template('test.html')
+    return render_template('index.html')
 
 
 @app.route('/create/', methods=['POST'])
@@ -22,4 +22,4 @@ def create():
                 session['user_id'], content, datetime.datetime.now()
             ])
             flash('Message was posted')
-    return render_template('create.html')
+    return render_template('index.html')

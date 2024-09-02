@@ -1,5 +1,7 @@
 import psycopg2
+
 from app import app
+
 
 def connect_db():
     return psycopg2.connect(**app.config['DATABASE'])
@@ -11,7 +13,7 @@ def init_db():
                 CREATE TABLE IF NOT EXISTS users (
                     id SERIAL PRIMARY KEY,
                     username VARCHAR(50) UNIQUE NOT NULL,
-                    password VARCHAR(32) NOT NULL,
+                    password VARCHAR(100) NOT NULL,
                     email VARCHAR(50),
                     join_date TIMESTAMP
                 );
